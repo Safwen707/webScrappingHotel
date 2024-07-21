@@ -4,18 +4,16 @@ const puppeteer=require('puppeteer')
 const Hotel = require('../models/Hotel')
 const urlH="https://tn.tunisiebooking.com/detail_hotel_36/"
 async function getPrice(url){
-    // const {data}= await axios.get(url);
-    // const $ =cheerio.load (data);
-    // const  prix_actuelle=$ (".prix_tot")
-    // const prix_ancien=$("#prixtotal1_781").text().trim()
-    
-        
-            
-    //         console.log("🚀 ~ proposition.each ~ prix_actuelle:", prix_actuelle)
-          
-    //         console.log("🚀 ~ proposition.each ~ prix_ancien:", prix_ancien)
-        
-    
+    //pour click
+    await page.click("#check1")
+    const clickedData=await page.$eval("#data",el=>el.textContent)
+    //form submission and navigating to another page
+    await page.type("#ourfield","cc")
+    await page.click("id de la button de submission")
+    await page.waitForNavigation()
+    const info =page.$evale("#message",el=>el.textCotent)
+
+
     const browser=await puppeteer.launch()
     console.log('Browser launched.');
     const page=await browser.newPage()
