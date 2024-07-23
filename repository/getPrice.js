@@ -28,44 +28,48 @@ console.log('Navigated to target URL.');
     
 await page.click("#arrivee.v37_73")
 console.log("arrivee")
-var table = await page.evaluate(()=>{
-    return( document.getElementsByTagName('tbody'));
+//-------------------------------selectionner le date----------------
+await page.waitForSelector('.calendar-table tbody');// to avoid the problem TimeoutError: Navigation timeout of 30000 ms exceeded
+var tableRows = await page.evaluate(()=>{
+    const tbody = document.querySelector('.calendar-table tbody');
+  const rows=Array.from( tbody.getElementsByTagName('tr'));
+  return rows.map(row => {
+    const cells = Array.from(row.getElementsByTagName('td'));
+    return cells.map(cell => {
+        
+        if(cell.textContent=="25"){
+            return({text: cell.textContent,dataTitle:cell.getAttribute('data-title')})
+        }
+        });
+  });
 
 })
-console.log("🚀  table:",  table)
-Object.keys(table).forEach(function(key, index) {
-    table[key] =table[key].tr;
+
+
+const getDataTitle=function(t){
+    for (let i=0;i<t.length;i++){
+        for (let j=0;j<t[i].length;j++){
+            if (t[i][j]!=null){
+                const data_title=t[i][j]
+                return data_title
+            }
+        }
     
-  });
-  console.log("🚀 ~ Object.keys ~  table:",  table)
-// for (var i = 0, row; row = table.rows[i]; i++) {
-//    //iterate through rows
-//    //rows would be accessed using the "row" variable assigned in the for loop
-//    for (var j = 0, col; col = row.cells[j]; j++) {
-//      //iterate through columns
-//      //columns would be accessed using the "col" variable assigned in the for loop
-//    }  
-// }
+    }
+}
+let data_tiltle=getDataTitle(tableRows)
+const dataTitleValue =data_tiltle.dataTitle
+console.log("🚀 ~ getPrice ~ data_tiltle:", data_tiltle)
+console.log("🚀 ~ getPrice ~ dataTitleValue:", dataTitleValue)
 
+await page.waitForSelector(`[data-title=${dataTitleValue}]`)
+await page.click(`[data-title=${dataTitleValue}]`);
 
-
-
-
-
-
-
-// await page.waitForSelector('body > div.daterangepicker.ltr.auto-apply.single.opensleft.show-calendar > div.drp-calendar.left.single > div.calendar-table > table > tbody', { visible: true });
-await delay(1000)
-const datePicker =await page.$$eval("body > div:nth-child(10) > div.drp-calendar.left.single > div.calendar-table > table > tbody",el => el.textContent)
-
-console.log("🚀 ~ datePicker ~ datePicker:", datePicker) 
-
-await page.click('body > div.daterangepicker.ltr.auto-apply.single.opensleft.show-calendar > div.drp-calendar.left.single > div.calendar-table > table > tbody ')
 console.log('clicked') 
-await delay(10000)
 
 
 
+//------------------------------ecrire le date---------------------------------
 // await page.$eval('input#checkin',(e) => e.removeAttribute("readonly")); 
 // await page.$eval('input#checkin',(e) => {e.value="25/07/2024" });  
 // await page.click(".col_dep")
@@ -75,7 +79,7 @@ await delay(10000)
 
 
 
-await Promise.all([page.click(".v194_22")])  
+ await Promise.all([page.click(".v194_22")])  
   
 
 
@@ -115,7 +119,7 @@ const  HotelsPromo= await page.evaluate(()=>{
  
 
 console.log("🚀 ~ getPrice ~ HotelsPromo:", HotelsPromo)
-await delay(5000)
+
 browser.close() 
    
      
