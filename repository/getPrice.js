@@ -24,65 +24,17 @@ console.log('Navigated to target URL.');
 
 
 
-
-
-//-------------------------------selectionner le date----------------
-// await page.waitForSelector('.left tbody');// to avoid the problem TimeoutError: Navigation timeout of 30000 ms exceeded
-// const getDateTable = async function(jour){
-//     let tableRows = await page.evaluate(()=>{
-//         const tbody = document.querySelector('.left tbody');
-//          const rows=Array.from( tbody.getElementsByTagName('tr'));
-//          return rows.map((row) => {
-//            const cells = Array.from(row.getElementsByTagName('td'));
-//            return cells.map((cell) => {
-               
-//                if(cell.textContent=="25"){
-//                    return({text: cell.textContent,dataTitle:cell.getAttribute('data-title')})
-//                }
-//                });
-//          });
-       
-//        })
-//        return tableRows
-// }
-
-// const getDataTitle=function(t){
-//     for (let i=0;i<t.length;i++){
-//         for (let j=0;j<t[i].length;j++){
-//             if (t[i][j]!=null){
-//                 const data_title=t[i][j]
-//                 return data_title
-//             }
-//         }
-    
-//     }
-// }
-
-// let dateTable=await getDateTable()
-
-// let data_tiltle=getDataTitle(dateTable)
-// const dataTitleValue =data_tiltle.dataTitle
-
-// console.log("🚀 ~ getPrice ~ dataTitleValue:", (dataTitleValue))
-// const navigationPromise = page.waitForNavigation();
-// await page.waitForSelector(`[data-title=${dataTitleValue}]`)
-// await page.click(`[data-title=${dataTitleValue}]`);
-// await Promise.all[navigationPromise];
-
-// await delay(1000)
-
-// await page.click('th.next.available')
-// await page.click('th.next.available')
-
-
-
-
+//------------------------------city---------------------------------
+await page.waitForSelector("#search")     
+await page.click("#search")
+await page.waitForSelector("#ville_des")     
+await page.$eval('#ville_des',(e) => {e.value="Douz" });
 
 //------------------------------arrivé---------------------------------
 await page.waitForSelector("#arrivee.v37_73")     
 await page.click("#arrivee.v37_73")
 await page.waitForSelector("#depart") //ma9loubin fe site
-await page.$eval('#depart',(e) => {e.value="26/07/2024" });
+await page.$eval('#depart',(e) => {e.value="25/07/2024" });
 await page.click("#arrivee.v37_73")
 
 //------------------------------depart---------------------------------
@@ -90,7 +42,26 @@ await page.click("#arrivee.v37_73")
 await page.waitForSelector(".col_dep") 
 await page.click(".col_dep")
 await page.waitForSelector("input#checkout.checkout") 
-await page.$eval('input#checkout.checkout',(e) => e.value="29/07/2024"); 
+await page.$eval('input#checkout.checkout',(e) => e.value="30/07/2024"); 
+
+//------------------------------chambre---------------------------------
+
+await page.waitForSelector("#chdest") 
+await page.click("#chdest")
+await delay(3000)
+await page.waitForSelector("#adultes1") 
+await page.$eval('#adultes1',(e) => e.value=1); 
+await page.waitForSelector("#enfants1") 
+await page.$eval('#enfants1',(e) => e.value=1);
+
+
+await delay(3000)
+await page.waitForSelector("#age11") 
+await page.$eval('#age11',(e) => e.value=4); 
+await delay(3000)
+
+
+
 
 //------------------------------search---------------------------------
 await page.waitForSelector(".v194_22") 
