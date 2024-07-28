@@ -1,15 +1,15 @@
-const axios = require ("axios")
-const cheerio= require("cheerio")
-const Hotel = require('../models/Hotel')
-const urlH="https://tn.tunisiebooking.com/detail_hotel_36/"
+
 const puppeteer=require('puppeteer')
 function delay(time) {
     return new Promise(function(resolve) { 
         setTimeout(resolve, time)
     });
  }
-async function getPrice(url){
+
+async function getPrice(url,destination,date_depart,date_arrivee,nbrAdulte,nbrEnfant){
+   
     
+  
 const browser=await puppeteer.launch({
     headless:false,//tet7al fenetre 9odemk     
 })  
@@ -24,17 +24,17 @@ console.log('Navigated to target URL.');
 
 
 
-//------------------------------city---------------------------------
+//------------------------------destination---------------------------------
 await page.waitForSelector("#search")     
 await page.click("#search")
 await page.waitForSelector("#ville_des")     
-await page.$eval('#ville_des',(e) => {e.value="Douz" });
+await page.$eval('#ville_des',(e,destination) => {e.value=destination },destination);
 
 //------------------------------arrivé---------------------------------
 await page.waitForSelector("#arrivee.v37_73")     
 await page.click("#arrivee.v37_73")
 await page.waitForSelector("#depart") //ma9loubin fe site
-await page.$eval('#depart',(e) => {e.value="25/07/2024" });
+await page.$eval('#depart',(e,date_arrivee) => {e.value=date_arrivee},date_arrivee);
 await page.click("#arrivee.v37_73")
 
 //------------------------------depart---------------------------------
@@ -42,25 +42,39 @@ await page.click("#arrivee.v37_73")
 await page.waitForSelector(".col_dep") 
 await page.click(".col_dep")
 await page.waitForSelector("input#checkout.checkout") 
-await page.$eval('input#checkout.checkout',(e) => e.value="30/07/2024"); 
+await page.$eval('input#checkout.checkout',(e,date_depart) => {e.value=date_depart},date_depart); 
 
-//------------------------------chambre---------------------------------
+//------------------------------chambre/adultes/enfants---------------------------------
 
 await page.waitForSelector("#chdest") 
 await page.click("#chdest")
 await delay(3000)
 await page.waitForSelector("#adultes1") 
-await page.$eval('#adultes1',(e) => e.value=1); 
-await page.waitForSelector("#enfants1") 
-await page.$eval('#enfants1',(e) => e.value=1);
+await page.$eval('#adultes1',(e,nbrAdulte) => e.value=nbrAdulte,nbrAdulte); 
+await page.waitForSelector("#enfants1")
+await page.$eval('#enfants1',(e,nbrEnfant) =>{ e.value=nbrEnfant},nbrEnfant);
 
 
-await delay(3000)
-await page.waitForSelector("#age11") 
-await page.$eval('#age11',(e) => e.value=4); 
-await delay(3000)
-
-
+switch (nbrEnfant) {
+    case 1:
+        await page.waitForSelector("#age1_1") 
+        await page.select('#age1_1', `${process.env.ageEnfant1}`)
+      break;
+    case 2:
+        await page.waitForSelector("#age1_1") 
+        await page.select('#age1_1', `${process.env.ageEnfant1}`)
+        await page.waitForSelector("#age1_2") 
+        await page.select('#age1_2', `${process.env.ageEnfant2}`)
+      break;
+    default:
+        await page.waitForSelector("#age1_1") 
+        await page.select('#age1_1', `${process.env.ageEnfant1}`)
+        await page.waitForSelector("#age1_2") 
+        await page.select('#age1_2',`${process.env.ageEnfant2}`)
+        await page.waitForSelector("#age1_3") 
+        await page.select('#age1_3', `${process.env.ageEnfant3}`)
+      
+}
 
 
 //------------------------------search---------------------------------
@@ -81,6 +95,7 @@ await delay(2000)
 
 
 const  HotelsPromo= await page.evaluate(()=>{
+    
     let prices=[]
     let prices1= Array.from(document.querySelectorAll(".prix_tot")).map(x=>{return{ actual_prix:x.textContent.trim()}})
     for(p of prices1){
@@ -118,4 +133,4 @@ console.log("🚀 ~ getPrice ~ HotelsPromo:", HotelsPromo)
 } 
  
  
-getPrice("https://tn.tunisiebooking.com/theme/rsltv2_new_v2.php?item=c291cmNlX2NvbW09d2ViK2Rlc2t0b3AmdmlsbGVfdHh0PUhhbW1hbWV0JmlkX3htbF9ob3RlbD0mdmlsbGU9SGFtbWFtZXQmZGVwPTI4JTJGMDclMkYyMDI0JmRlcGFydD0yOCUyRjA3JTJGMjAyNCZkZmluPTMxJTJGMDclMkYyMDI0JmFycml2ZWU9MzElMkYwNyUyRjIwMjQmbmJyX251aXQ9MyZyZXRvdXJoPTI0JTJGMDclMkYyMDI0JmNoYW1icmVzPTEmbGFzdGNoPTEmYWN0aXZlPTEmYWR1bHRlczE9MiZlbmZhbnRzMT0xJmFnZTFfMT0yJmFnZTFfMj0mYWdlMV8zPSZhZHVsdGVzMj0wJmVuZmFudHMyPTAmYWdlMl8xPSZhZ2UyXzI9JmFnZTJfMz0mYWR1bHRlczM9MCZlbmZhbnRzMz0wJmFnZTNfMT0mYWdlM18yPSZhZ2UzXzM9JmFkdWx0ZXM0PTAmZW5mYW50czQ9MCZhZ2U0XzE9JmFnZTRfMj0mYWdlNF8zPSZhZHVsdGVzNT0wJmVuZmFudHM1PTAmYWdlNV8xPSZhZ2U1XzI9JmFnZTVfMz0%3D")
+getPrice(process.env.urlTunisieBooking,process.env.destination,process.env.date_depart,process.env.date_arrivee,process.env.nbrAdulte,process.env.nbrEnfant)
