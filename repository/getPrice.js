@@ -5,11 +5,9 @@ function delay(time) {
         setTimeout(resolve, time)
     });
  }
-
+ let date_arrivee=new Date().toJSON().slice(0,10).split('-').reverse().join('/')
 async function getPrice(url,destination,date_depart,date_arrivee,nbrAdulte,nbrEnfant){
-   
-    
-  
+// let date_arrivee=new Date().toJSON().slice(0,10).split('-').reverse().join('/') 
 const browser=await puppeteer.launch({
     headless:false,//tet7al fenetre 9odemk     
 })  
@@ -56,6 +54,9 @@ await page.$eval('#enfants1',(e,nbrEnfant) =>{ e.value=nbrEnfant},nbrEnfant);
 
 
 switch (nbrEnfant) {
+    case 0:
+       
+      break;
     case 1:
         await page.waitForSelector("#age1_1") 
         await page.select('#age1_1', `${process.env.ageEnfant1}`)
@@ -96,6 +97,19 @@ await delay(2000)
 
 const  HotelsPromo= await page.evaluate(()=>{
     
+   
+    
+    let tab_ch= Array.from(document.querySelectorAll(".span_tripadv")).map(x=>{return x.textContent.trim()})
+    console.log("🚀 ~ HotelsPromo ~ tabch1:", tab_ch)
+    let rate=[]
+    
+    let ch=""
+    for(let i=0;i<tab_ch.length-1;i++){
+        if((i%2)==0){ch=tab_ch[i]+"/"+"5"+" "+tab_ch[i+1]
+        rate.push(ch)}
+
+    }
+    
     let prices=[]
     let prices1= Array.from(document.querySelectorAll(".prix_tot")).map(x=>{return{ actual_prix:x.textContent.trim()}})
     for(p of prices1){
@@ -118,7 +132,7 @@ const  HotelsPromo= await page.evaluate(()=>{
     let names =Array.from(document.querySelectorAll(".span_lib_hot")).map(x=>{return{ name:x.textContent.trim()}})
     let HotelsPromo=[]
     for(let i=0;i<prices.length;i++){
-        HotelsPromo.push({name:names[i].name,olde_price:old_prices[i].old_prix,actual_price:prices[i].actual_prix})
+        HotelsPromo.push({name:names[i].name,olde_price:old_prices[i].old_prix,actual_price:prices[i].actual_prix,rate:rate[i]})
     }
     return HotelsPromo
     
@@ -126,6 +140,8 @@ const  HotelsPromo= await page.evaluate(()=>{
  
 
 console.log("🚀 ~ getPrice ~ HotelsPromo:", HotelsPromo)
+await page.waitForSelector("#tailleprix") 
+await page.click("#tailleprix")
 
 // browser.close() 
    
